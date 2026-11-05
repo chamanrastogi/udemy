@@ -1,82 +1,62 @@
+import type { Metadata } from "next";
 
-import Link from "next/link";
+import { PostList } from "@/components/notes/PostList";
+import { ArrowLink } from "@/components/ui/ArrowLink";
+import { getPosts } from "@/lib/posts";
+import { site } from "@/lib/site";
 
-interface Post {
-  userId: number;
-  id: number;
-  title: string;
-  body: string;
-}
-
-async function getPosts(): Promise<Post[]> {
-  const response = await fetch(
-    "https://jsonplaceholder.typicode.com/posts",
-    { cache: "force-cache" }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch posts");
-  }
-
-  return response.json();
-}
+export const metadata: Metadata = {
+  title: "Posts",
+  description:
+    "Every entry in the Fieldwork notebook — short records of interfaces, systems, and decisions made while building.",
+};
 
 export default async function PostsPage() {
   const posts = await getPosts();
 
   return (
-    <div className="container py-5">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 className="mb-1">Posts</h1>
-          <p className="text-muted mb-0">
-            Posts fetched from JSONPlaceholder API
-          </p>
-        </div>
-
-        <a
-          href="https://jsonplaceholder.typicode.com/posts"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn btn-outline-primary"
-        >
-          Test API
-        </a>
-      </div>
-
-      <div className="row g-4">
-        {posts.map((post) => (
-          <div className="col-md-6 col-lg-4" key={post.id}>
-            <div className="card h-100 shadow-sm">
-              <div className="card-body">
-                <span className="badge bg-primary mb-3">
-                  Post #{post.id}
-                </span>
-
-                <h5 className="card-title text-capitalize">
-                  {post.title}
-                </h5>
-
-                <p className="card-text text-muted">
-                  {post.body}
-                </p>
-              </div>
-
-              <div className="card-footer bg-white">
-                <small className="text-muted">
-                  User ID: {post.userId}
-                </small>
-              </div>
-            </div>
+    <>
+      <header className="page-hero">
+        <div className="container">
+          <div className="page-meta">
+            <span>Index / Field notes</span>
+            <span>{String(posts.length).padStart(3, "0")} entries</span>
           </div>
-        ))}
-      </div>
 
-      <div className="text-center mt-5">
-        <Link href="/" className="btn btn-dark">
-          Back to Home
-        </Link>
-      </div>
-    </div>
+          <h1 className="page-title">
+            Every note,
+            <br />
+            in order.
+          </h1>
+
+          <div className="page-hero-foot">
+            <p className="page-lede">
+              A running index of what I have been building. Longer than a
+              changelog, shorter than an essay — just enough to remember the
+              decision next time.
+            </p>
+
+            <a
+              className="source-link"
+              href={site.postsApiUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Source: JSONPlaceholder <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <section className="section section--flush">
+        <div className="container">
+          <PostList posts={posts} headingLevel={2} />
+
+          <div className="page-back">
+            <ArrowLink href="/">Back to the notebook</ArrowLink>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
