@@ -1,17 +1,13 @@
-import { cacheLife, cacheTag } from "next/cache";
-
 import { env } from "@/lib/env";
 import type { Post } from "@/types/post";
 
 /**
- * Cached at the data level so the posts index and the home page share
- * one fetch, and so the result can join the static shell.
+ * Both pages that call this are statically generated at build time, so the
+ * request runs once per export and the markup is baked into the output.
+ * GitHub Pages has no server to revalidate, so there is no runtime cache
+ * layer to configure here.
  */
 export async function getPosts(): Promise<Post[]> {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("posts");
-
   const response = await fetch(env.postsApiUrl);
 
   if (!response.ok) {
